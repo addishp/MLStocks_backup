@@ -34,19 +34,54 @@ def split_data():
 
 class Rnn:
     # set values for Rnn object
-    def __init__(self, data, scope):
-        self.data = data
-        self.scope = scope
-        self.upscale_value = 0
-
-    def make_batches(self):
+    def __init__(self, optimizer, low_bound = None, high_bound = None):
+        self.low_bound = 0
+        self.high_bound = 0
+        if optimizer == 'adabound':
+            self.low_bound = low_bound
+            self.high_bound = high_bound
+        self.model = None
 
 
     # train function for Rnn class
-    def train(self, units_selected_array, dropouts_selected_array, lr_low, lr_high):
-        model = Sequential()
-            for i in range(len(units_selected_array) - 1):
-                model.add(LSTM(units = units_selected_array[i], activation = self.optimizer,))
+    def create(self, rows, columns, layers, units_for_layers, dropouts_for_layers):
+        #initilize Sequential rnn
+        self.model = Sequential()
+        # add first layer and define input shape
+        self.model.add(LSTM(units_for_layers[0], activation = 'relu', return_sequences = True, input_shape = (rows, columns)))
+        self.model.add(Dropout(dropouts_for_layers[0]))
+        # for adding additional layers
+        if layers > 2:
+            for i in range(1,layers-1):
+                self.model.add(LSTM(units_for_layers[i], activation = 'relu', return_sequences = True))
+
+        #the penultimate layer is different (doesn't return sequences)
+        self.model.add(LSTM(units_for_layers[])
+        #final output is given
+
+
+        self.model = model
+
+        return None
+
+    def train(self, xTrain, yTrain, epochs, batch_size, optimizer, ada_low = None, ada_high = None):
+        #compiles model that was created
+        if optimizer != 'adaboost':
+            self.model.compile(optimizer=optimizer, loss = 'mean_squared_error')
+        else:
+            self.model.compile(optimizer=AdaBound(lr=ada_low, final_lr=ada_high), loss = 'mean_squared_error')
+        #fit model to data
+        self.model.fit(xTrain, yTrain, epochs=epochs, batch_size=batch_size)
+
+    def predict(self, input_data):
+        y_hat = self.model.predict(input_data)
+        return y_hat
+
+
+)
+
+
+
 
 
 
